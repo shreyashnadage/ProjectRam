@@ -95,7 +95,7 @@ with stock_tab:
         @st.cache
         def convert_df(df):
             # IMPORTANT: Cache the conversion to prevent computation on every rerun
-            return df.to_csv().encode('utf-8')
+            return df.to_csv(index=False).encode('utf-8')
 
         csv = convert_df(stock_data_df)
         st.download_button(
@@ -169,8 +169,9 @@ with stock_tab:
                   help="Helpful in analyzing momentum of price.")
 
     momentum_plot_column = st.container()
-    st.subheader("MACD Chart")
+
     with momentum_plot_column:
+        st.subheader("MACD Chart")
         fig_macd = go.Figure()
         fig_macd = make_subplots(rows=3, cols=1, shared_xaxes=True,
                                  vertical_spacing=0.01, row_heights=[0.5, 0.3, 0.3])
