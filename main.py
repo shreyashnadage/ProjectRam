@@ -2,6 +2,8 @@ import streamlit as st
 from nsetools import Nse
 from nsepy import get_history
 from datetime import date, timedelta
+
+import CS_pattern_rankings
 from PatternRecognition import *
 from VixAnalysis import *
 from TopMovers import *
@@ -12,9 +14,9 @@ import numpy as np
 import pandas as pd
 import yfinance as yf
 from plotly.subplots import make_subplots
-from random import randrange
+from NewsAnalyzer import *
 
-buy_sell_color_dict = {"Buy":"green", "Sell":"red", "Hold":"yellow"}
+buy_sell_color_dict = {"Buy": "green", "Sell": "red", "Hold": "yellow"}
 
 today = date.today()
 nse = Nse()
@@ -48,6 +50,12 @@ with main_sidebar:
                     st.write(mood_dict[GetMood(value)])
             except:
                 st.error("Issues fetching VIX Data!")
+
+    Nifty_sentiment_container = st.container()
+    with Nifty_sentiment_container:
+        with st.spinner(text="Loading NIFTY live sentiment..."):
+            st.subheader("Live NIFTY Sentiment")
+            st.markdown(f"**{get_nifty_sentiment()}**")
 
     top_losers = st.container()
     with top_losers:
@@ -120,8 +128,8 @@ with stock_tab:
     matched_pattern, tech_df = GetPatternForData(stock_data_df=stock_data_df)
     if matched_pattern is not None:
         with pattern_expander_col:
-            with st.expander(matched_pattern):
-                st.write("Will add description here")
+            with st.expander(CS_pattern_rankings.candlestick_patterns[matched_pattern]):
+                st.write(CS_pattern_rankings.candlestick_patterns_description[matched_pattern])
         with cs_gauge_col:
             score_cs_pattern = tech_df[[matched_pattern]].astype(float).sum()[0]
             if score_cs_pattern < 0:
@@ -197,7 +205,19 @@ with stock_tab:
         fig_macd.update_yaxes(title_text="MACD", showgrid=False, row=3, col=1)
         st.plotly_chart(fig_macd, use_container_width=True)
 
+    st.markdown("***")
+    st.subheader("Sentiment Analysis:")
+    newsheadlines = get_headlines(searchterm=selected_stock)
+    newsheadlines_col, sentimet_col = st.columns(2)
+    with newsheadlines_col:
+        st.subheader(f"Top Headlines For {ticker_yf}:")
+        for news in newsheadlines[:5]:
+            st.markdown(news)
 
+    with sentimet_col:
+        sentiment = get_sentimental_analysis(newsheadlines)
+        st.subheader(f"Live sentiment for {ticker_yf.split('.')[0]}:")
+        st.markdown(f"**{sentiment}**")
 
 with intraday_tab:
 
@@ -288,5 +308,9 @@ with intraday_tab:
 
         time.sleep(5)
 
-with mf_tab:
-    st.write("Coming soon...")
+with portfolio_tab:
+
+# with mf_tab:
+#     test_tab1, test_tab2 = st.tabs(['tab1', 'tab2'])
+#     with test_tab1:
+#         st.write("Coming soon...")

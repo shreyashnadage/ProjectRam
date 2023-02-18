@@ -38,3 +38,4 @@ def ComputeMACDSignal(stock_data_df):
         ta.MACD(macd_data_df.Close, fastperiod=12, slowperiod=26, signalperiod=9)
     macd_data_df.dropna(inplace=True)
     return macd_data_df
+
