@@ -2,7 +2,7 @@ import streamlit as st
 from nsetools import Nse
 from nsepy import get_history
 from datetime import date, timedelta
-
+import plotly.express as px
 import CS_pattern_rankings
 from PatternRecognition import *
 from VixAnalysis import *
@@ -15,6 +15,8 @@ import pandas as pd
 import yfinance as yf
 from plotly.subplots import make_subplots
 from NewsAnalyzer import *
+from Stock_Static_Data import *
+from PortfolioAnalytics import *
 
 buy_sell_color_dict = {"Buy": "green", "Sell": "red", "Hold": "yellow"}
 
@@ -27,7 +29,7 @@ del all_stock_names['NAME OF COMPANY']
 st.set_page_config(page_title='Jarvis', page_icon=':money_with_wings:', layout='wide', initial_sidebar_state='auto')
 pd.options.plotting.backend = "plotly"
 st.title('Jarvis')
-stock_tab, mf_tab, intraday_tab = st.tabs(['Stocks', 'Mutual Funds', 'Intraday'])
+stock_tab, portfolio_tab, intraday_tab = st.tabs(['Stocks', 'Portfolio', 'Intraday'])
 
 main_sidebar = st.sidebar
 with main_sidebar:
@@ -219,6 +221,50 @@ with stock_tab:
         st.subheader(f"Live sentiment for {ticker_yf.split('.')[0]}:")
         st.markdown(f"**{sentiment}**")
 
+with portfolio_tab:
+    portfolio_main_container = st.container()
+    with portfolio_main_container:
+        create_portfolio_for_me, diy_portfolio = st.columns(2)
+        with create_portfolio_for_me:
+            sector_list = get_sector_list()
+            sector_list.append('Surprise me!')
+            select_portfolio_sector = st.selectbox(
+                "Choose your sector of preference?",
+                 tuple(sector_list))
+
+            if st.button('Build Portfolio'):
+                with st.spinner(text='Creating your portfolio! Please wait!'):
+                    asset_list = get_stock_list_by_sector(select_portfolio_sector)
+                    portfolio_df, hrp = get_HRP_weights(asset_list)
+                    fig = px.pie(portfolio_df, values='Weights', names='Stock', title=f'Portfolio allocation for'
+                                                                                      f' {select_portfolio_sector} sector')
+                    st.plotly_chart(fig)
+                    exp_ret, vol, sharpe = get_portfolio_performance(hrp)
+                    st.write(f'Expected Returns {exp_ret:.0%}')
+                    st.write(f'Annualized Volatility {vol:.0%}')
+                    st.write(f'Sharpe Ratio {sharpe:.0%}')
+            else:
+                pass
+
+        with diy_portfolio:
+            asset_list_diy = st.multiselect(
+                'Choose stocks you want to add to your portfolio',
+                list(nse_stock_sectors.keys()),
+                list(nse_stock_sectors.keys())[:3])
+            asset_list_diy = [i.strip()+'.NS' for i in asset_list_diy]
+            if st.button('Get Weights'):
+                with st.spinner(text='Creating your portfolio! Please wait!'):
+                    portfolio_df, hrp = get_HRP_weights(asset_list_diy)
+                    fig = px.pie(portfolio_df, values='Weights', names='Stock', title=f'Portfolio allocation for'
+                                                                                      f' selected stocks')
+                    st.plotly_chart(fig)
+                    exp_ret, vol, sharpe = get_portfolio_performance(hrp)
+                    st.write(f'Expected Returns {exp_ret:.0%}')
+                    st.write(f'Annualized Volatility {vol:.0%}')
+                    st.write(f'Sharpe Ratio {sharpe:.0%}')
+            else:
+                pass
+
 with intraday_tab:
 
     stock_selector_container_intraday = st.container()
@@ -308,9 +354,5 @@ with intraday_tab:
 
         time.sleep(5)
 
-with portfolio_tab:
 
-# with mf_tab:
-#     test_tab1, test_tab2 = st.tabs(['tab1', 'tab2'])
-#     with test_tab1:
-#         st.write("Coming soon...")
+
