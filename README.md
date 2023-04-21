@@ -4,7 +4,7 @@ colorFrom: red
 colorTo: purple
 sdk: streamlit
 sdk_version: 1.19.0
-app_file: app.py
+app_file: main.py
 pinned: false
 license: openrail
 
