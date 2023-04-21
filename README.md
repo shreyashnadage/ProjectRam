@@ -1,6 +1,6 @@
 ---
 title: InvestmentCopilot
-emoji: 😻
+emoji: 💸
 colorFrom: blue
 colorTo: indigo
 sdk: streamlit
