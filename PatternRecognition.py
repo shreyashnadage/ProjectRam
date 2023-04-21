@@ -1,4 +1,4 @@
-import talib as ta
+import ta
 import pandas as pd
 import numpy as np
 
