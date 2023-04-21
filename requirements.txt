@@ -8,6 +8,6 @@ plotly==5.11.0
 pygooglenews==0.1.2
 scipy==1.9.3
 streamlit==1.16.0
-TA_Lib==0.4.19
+ta
 transformers==4.25.1
 yfinance==0.1.90
