@@ -2,7 +2,7 @@ hmmlearn==0.2.8
 nsepy==0.8
 nsetools==1.0.11
 numpy==1.23.4
-numpy==1.23.5
+numpy
 pandas==1.5.2
 plotly==5.11.0
 pygooglenews==0.1.2
