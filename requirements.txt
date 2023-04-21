@@ -12,4 +12,4 @@ ta
 transformers==4.25.1
 yfinance==0.1.90
 torch
-pypfopt
+PyPortfolioOpt
